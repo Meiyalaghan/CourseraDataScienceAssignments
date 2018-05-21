@@ -9,7 +9,7 @@ rm(list=ls())
 library(data.table)
 
 #load file
-FileGetDir <- "C:/CourseraDataScienceAssignments/Data/"
+FileGetDir <- "./Data/"
 
 
 AllData <- fread(paste0(FileGetDir,"household_power_consumption.txt"), header=T, sep=";", na.strings="?")
@@ -28,21 +28,21 @@ sapply(FilteredData, class)
 
 Set_DateTime <- strptime(paste(FilteredData$Date, FilteredData$Time, sep=" "),"%d/%m/%Y %H:%M:%S")
 
-FilteredData <- cbind(Set_DateTime, FilteredData)
 
 #Plot3
 
-with(FilteredData, {
-  plot(Sub_metering_1 ~ Set_DateTime, type = "l", 
-       ylab = "Global Active Power (kilowatts)", xlab = "")
-  lines(Sub_metering_2 ~ Set_DateTime, col = 'Red')
-  lines(Sub_metering_3 ~ Set_DateTime, col = 'Blue')
-}) 
-legend("topright", col = c("black", "red", "blue"), lty = 1, lwd = 2, 
-       legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"))
+Sub_met1 <- as.numeric(FilteredData$Sub_metering_1)
+Sub_met2 <- as.numeric(FilteredData$Sub_metering_2)
+Sub_met3 <- as.numeric(FilteredData$Sub_metering_3)
+
+png(file="Plot3.png")
+
+plot(Set_DateTime, Sub_met1, type="l", xlab = "", ylab="Energy sub metering")
+lines(Set_DateTime, Sub_met2, type="l", col = "red")
+lines(Set_DateTime, Sub_met3, type="l", col = "blue")
 
 
-# Save png file and close device that creates the PNG file
-#--------------------------------------------------------
-dev.copy(png,"plot3.png", width=480, height=480)
+legend("topright", c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"), lty=1, lwd=2.5, col=c("black", "red", "blue"))
+
 dev.off()
+
