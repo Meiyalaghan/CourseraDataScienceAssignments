@@ -48,6 +48,6 @@ EmissionsData_Coal %>%
   geom_line(aes(colour = type)) +
   geom_point(col = "black") +
   labs(x = "Year", y = "Total PM2.5emissions (tons)",
-       title = expression("PM2.5 emissions in US from Coal combustion-related sources by tyoe and year"))
+       title = expression("PM2.5 emissions in US from Coal combustion-related sources by type and year"))
 dev.off()
 

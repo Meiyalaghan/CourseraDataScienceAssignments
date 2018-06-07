@@ -41,6 +41,6 @@ Emissions_Data %>%
   geom_line(aes(colour = type)) +
   geom_point(col = "black") +
   labs(x = "Year", y = "Total PM2.5 emissions (tons)",
-       title = expression('Total PM2.5 emission in Baltimor City - Maryland'))
+       title = expression('Total PM2.5 emission in Baltimor City - Maryland by type of source'))
 
 dev.off()
