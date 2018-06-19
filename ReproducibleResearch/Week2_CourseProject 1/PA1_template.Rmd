@@ -3,9 +3,9 @@ title: "Reproducible Research Peer-graded Assignment: Course Project 1 (week2)"
 author: "Meiyalaghan"
 date: "`r Sys.Date()`"
 output: 
-    html_document: default 
-    github_document:
-        toc: yes
+    html_document:
+        keep_md: yes
+    
 ---
 
 **All the instructions of this assignment available from [Forked repository on GitHub](https://github.com/Meiyalaghan/RepData_PeerAssessment1)**
