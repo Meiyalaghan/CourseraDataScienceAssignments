@@ -1,0 +1,160 @@
+---
+title: "Analysing the U.S. National Oceanic and Atmospheric Administration’s storm database to find the severe weather events"
+author: "S. Meiyalaghan"
+date: "`r Sys.Date()`"
+output: 
+    github_document:
+        toc: yes
+---
+
+
+## Synopsis
+The U.S. National Oceanic and Atmospheric Administration’s (NOAA) storm database was explored to find the severe weather events. This data analysis has been performed in partial fulfillment of the requirements for the [Reproducible Research](https://www.coursera.org/learn/reproducible-research) course available online from Johns Hopkins University via Coursera. In this analysis, dataset from the year 1995 was taken into account following the visualisation of data distribution (Figure). The fifteen most harmful weather events with respect to population health across the United States have been identified, mainly based on the number of fatalities, and listed in Table 1. Furthermore, the fifteen weather events that have greatest economic consequences across the United States have been identified, mainly based on the property damaged, and listed in Table 2.
+
+
+
+## Data Processing
+
+#### Key processes:
+
+* Load required libraries to perform this analysis
+
+* Download the storm data
+        The details of constructed/defined variables in the storm data were obtained from the following documentation
+        
+1. [National Weather Service Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdffiles)
+
+2. [National Climatic Data Center Storm Events FAQ](https://www.ncdc.noaa.gov/stormevents/faq.jsp)
+          
+          
+* Read and inspect the downloaded data
+
+* Convert the variable to the right format 
+
+* Create a new variable called 'Year' 
+
+* Visualise the storm data distribution
+ 
+
+
+**Load required libraries**
+```{r}
+#load require libraries
+library(data.table) # required for 'fread'
+library(magrittr) #required to use the pipe (%>%) operator
+library(dplyr) # for efficiently manipulating datasets
+library(pander) # to produce good tables
+```
+
+
+
+
+#### Download the file
+```{r}
+# create a local directory named "data" if not exsits to download the file 
+localDir <- "data"
+if (!file.exists(localDir)) {
+  dir.create(localDir)
+}
+
+# download the file if not exsits
+url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+stormData_file <- paste(localDir, basename(url), sep='/')
+if (!file.exists(stormData_file)) {
+  download.file(url, stormData_file)
+}
+
+```
+
+
+
+#### Read and inspect the data
+```{r}
+#read the data
+stormData <- read.csv(stormData_file, as.is = TRUE)
+
+# A freshly read data.frame should always be inspected with functions such as head, str, summary and tail
+
+head(stormData)
+str(stormData)
+summary(stormData)
+
+```
+
+
+#### Converting date variable to date format and create a new variable for years
+```{r}
+#convert date variable named 'BGN_DATE'  to `Date` format, then extract and list the years in a  newly created variable called 'Year'.
+stormData$Year <- year(as.Date(stormData$BGN_DATE, '%m/%d/%Y'))
+
+range(stormData$Year) # to see the start and end of data year, 
+```
+
+####  Visualisation of storm data distribution
+```{r}
+# Plotting a histogram for a quick visualisation of strom data distribution by year
+#It is important to select the correct 'bin' size (groups of data); here 61 is applied since range of Year from 1950 to 2011 
+hist(stormData$Year, 61)
+```
+
+*This histogram plots shows a "skewed left" (non-symmetric) distribution in which the tail is on the left side. This could be due to the lack of data recorded in the early years. Given this "skewed left" distribution, data from 1995 are taken for this analysis.*
+
+
+## Results
+
+#### Tyeps of weather events across the United States that are most harmful with respect to population health 
+
+
+```{r}
+most_harmful_events <- stormData %>%
+                    subset(Year >= "1995") %>% #subset dataset with  from 1995
+                    select(EVTYPE, FATALITIES, INJURIES) %>%
+                    group_by(EVTYPE) %>% 
+                    summarise_all(funs(sum)) %>%
+                    arrange(desc(FATALITIES)) %>% 
+                    rename("TYPE OF EVENT" = EVTYPE)
+
+```
+
+
+
+```{r}
+#create a table to list the 15 most harmful weather events
+pandoc.table((most_harmful_events[1:15,]),  
+          justify = "left",
+          style = "grid",
+          caption = "1. The fifteen most harmful weather events with respect to population health across the United States")
+
+```
+
+*Table 1 shows the fifteen harmful weather events, arranged mainly by the number of fatalities, from the year 1995.*
+
+
+#### Tyeps of weather events across the United States that have greatest economic consequences 
+
+```{r}
+#finding greatest economic consequences events from the storm dataset
+greatest_economic_events <- stormData %>%
+                    subset(Year >= "1995") %>% #subset dataset with  strom data from 1995
+                    select(EVTYPE, PROPDMG, CROPDMG) %>%
+                    group_by(EVTYPE) %>% 
+                    summarise_all(funs(sum)) %>%
+                    arrange(desc(PROPDMG), desc(CROPDMG)) %>% 
+                    rename("TYPE OF EVENT" = EVTYPE,
+                           "PROPERTY DAMAGED" = PROPDMG,
+                           "CROP DAMAGED" = CROPDMG)
+```
+
+
+
+```{r}
+#create a table to list  the 15 greatest economic consequences events
+pandoc.table((greatest_economic_events[1:15,]),
+            justify = "left",
+            style = "grid",
+            caption = "2. The fifteen weather events that have greatest economic consequences across the United States")
+```
+
+*Table 2 shows the fifteen weather events that have greatest economic consequences, arranged mainly by the cost of property damaged, from the year 1995.*
+
+
